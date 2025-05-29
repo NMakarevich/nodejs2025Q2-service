@@ -19,27 +19,33 @@ export class FavouritesService {
   findAll() {
     const favs = this.favsDB.findAll();
     const response: FavouriteInterface = {
-      artists: favs.artists.map((id) => {
-        try {
-          return this.artistService.findOne(id);
-        } catch {
-          this.favsDB.deleteArtist(id);
-        }
-      }),
-      albums: favs.albums.map((id) => {
-        try {
-          return this.albumService.findOne(id);
-        } catch {
-          this.favsDB.deleteAlbum(id);
-        }
-      }),
-      tracks: favs.tracks.map((id) => {
-        try {
-          return this.trackService.findOne(id);
-        } catch {
-          this.favsDB.deleteTrack(id);
-        }
-      }),
+      artists: favs.artists
+        .map((id) => {
+          try {
+            return this.artistService.findOne(id);
+          } catch {
+            this.favsDB.deleteArtist(id);
+          }
+        })
+        .filter((artist) => artist),
+      albums: favs.albums
+        .map((id) => {
+          try {
+            return this.albumService.findOne(id);
+          } catch {
+            this.favsDB.deleteAlbum(id);
+          }
+        })
+        .filter((album) => album),
+      tracks: favs.tracks
+        .map((id) => {
+          try {
+            return this.trackService.findOne(id);
+          } catch {
+            this.favsDB.deleteTrack(id);
+          }
+        })
+        .filter((track) => track),
     };
     return response;
   }
