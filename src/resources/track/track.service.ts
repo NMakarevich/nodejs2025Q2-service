@@ -1,13 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import { Database } from '../../db/database';
 import { Track } from './entities/track.entity';
 import { v4 as uuidv4 } from 'uuid';
 
+import { trackDB } from '../../db/database';
+
 @Injectable()
 export class TrackService {
-  constructor(private readonly tracksDB: Database<Track>) {}
+  private tracksDB = trackDB;
 
   create(createTrackDto: CreateTrackDto) {
     const id = uuidv4();
@@ -38,5 +39,27 @@ export class TrackService {
     if (!track)
       throw new HttpException('Track is not found', HttpStatus.NOT_FOUND);
     return this.tracksDB.delete(id);
+  }
+
+  removeAlbumId(id: string) {
+    const tracks = this.tracksDB
+      .findAll()
+      .filter((track) => track.albumId === id);
+    tracks.forEach((track) => {
+      const updateTrackDto = new UpdateTrackDto();
+      updateTrackDto.albumId = null;
+      this.update(track.id, updateTrackDto);
+    });
+  }
+
+  removeArtistId(id: string) {
+    const tracks = this.tracksDB
+      .findAll()
+      .filter((track) => track.artistId === id);
+    tracks.forEach((track) => {
+      const updateTrackDto = new UpdateTrackDto();
+      updateTrackDto.artistId = null;
+      this.update(track.id, updateTrackDto);
+    });
   }
 }

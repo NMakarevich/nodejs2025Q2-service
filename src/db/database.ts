@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { User } from '../resources/user/entities/user.entity';
+import { Track } from '../resources/track/entities/track.entity';
+import { Album } from '../resources/album/entities/album.entity';
+import { Artist } from '../resources/artist/entities/artist.entity';
 
 @Injectable()
-export class Database<E extends { id: string }> {
+class Database<E extends { id: string }> {
   private entities: E[] = [];
 
   create = (entity: E) => {
@@ -29,3 +33,8 @@ export class Database<E extends { id: string }> {
     return true;
   };
 }
+
+export const userDB = new Database<User>();
+export const trackDB = new Database<Track>();
+export const albumDB = new Database<Album>();
+export const artistDB = new Database<Artist>();

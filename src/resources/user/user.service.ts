@@ -1,13 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Database } from '../../db/database';
 import { User } from './entities/user.entity';
 import { v4 as uuidv4 } from 'uuid';
 
+import { userDB } from '../../db/database';
+
 @Injectable()
 export class UserService {
-  constructor(private readonly users: Database<User>) {}
+  private users = userDB;
 
   create(createUserDto: CreateUserDto) {
     const time = new Date().getTime();
