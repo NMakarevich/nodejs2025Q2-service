@@ -270,6 +270,7 @@ paths:
               properties:
                 name:
                   type: string
+                  example: The Show Must Go On
                 artistId:
                   type: string
                   format: uuid
@@ -279,6 +280,7 @@ paths:
                 duration:
                   type: integer
                   description: In seconds
+                  example: 262
               required:
                 - name
                 - duration
