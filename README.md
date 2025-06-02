@@ -19,11 +19,14 @@ npm install
 
 ## Running application
 
+Create `.env` file in project root directory using `.env.example` as example.
+Set port number to `PORT={PORT_NUMBER}`
+
 ```
 npm start
 ```
 
-After starting the app on port (4000 as default) you can open
+After starting the app on port (which you provide in `.env` file or 4000 by default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
 For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
