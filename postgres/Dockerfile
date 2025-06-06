@@ -1,1 +1,1 @@
-FROM alpine:3.22
+FROM postgres:alpine3.22
