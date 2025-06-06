@@ -14,16 +14,20 @@ git clone {repository URL}
 ## Installing NPM modules
 
 ```
-npm install
+npm install --legacy-peer-depss
 ```
 
 ## Running application
 
 Create `.env` file in project root directory using `.env.example` as example.
 Set port number to `PORT={PORT_NUMBER}`
+Set postgres variables.
+
+Run docker desktop.
+Run building and start app in docker
 
 ```
-npm start
+docker-compose up
 ```
 
 After starting the app on port (which you provide in `.env` file or 4000 by default) you can open
