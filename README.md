@@ -11,19 +11,13 @@
 git clone {repository URL}
 ```
 
-## Installing NPM modules
-
-```
-npm install
-```
-
 ## Running application
 
 Create `.env` file in project root directory using `.env.example` as example.
 Set port number to `PORT={PORT_NUMBER}`
 Set postgres variables.
-If you run app in container you should set POSTGRES_HOST=postgres.
-If you run app in host machine you should set POSTGRES_HOST=localhost
+If you run app in container you should set `POSTGRES_HOST=postgres`.
+If you run app in host machine you should set `POSTGRES_HOST=localhost` and run `npm i`.
 
 Run docker desktop.
 Run building and start app in docker
