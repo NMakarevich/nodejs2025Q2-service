@@ -16,9 +16,9 @@ datasource db {
 
 model User {
   id        String   @id @default(uuid())
-  login     String   @unique
+  login     String
   password  String
-  version   Int      @default(autoincrement())
+  version   Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -36,8 +36,8 @@ model Album {
   id         String       @id @default(uuid())
   name       String
   year       Int
-  artist     Artist       @relation(fields: [artistId], references: [id])
-  artistId   String
+  artist     Artist?      @relation(fields: [artistId], references: [id])
+  artistId   String?
   tracks     Track[]
   favourites Favourites[]
 }
@@ -46,19 +46,19 @@ model Track {
   id         String       @id @default(uuid())
   name       String
   duration   Int
-  artistId   String
-  albumId    String
-  artist     Artist       @relation(fields: [artistId], references: [id])
-  album      Album        @relation(fields: [albumId], references: [id])
+  artistId   String?
+  albumId    String?
+  artist     Artist?      @relation(fields: [artistId], references: [id])
+  album      Album?       @relation(fields: [albumId], references: [id])
   favourites Favourites[]
 }
 
 model Favourites {
-  id       String @id @default(uuid())
-  artistId String
-  artist   Artist @relation(fields: [artistId], references: [id])
-  albumId  String
-  album    Album  @relation(fields: [albumId], references: [id])
-  trackId  String
-  track    Track  @relation(fields: [trackId], references: [id])
+  id       String  @id @default(uuid())
+  artistId String?
+  artist   Artist? @relation(fields: [artistId], references: [id])
+  albumId  String?
+  album    Album?  @relation(fields: [albumId], references: [id])
+  trackId  String?
+  track    Track?  @relation(fields: [trackId], references: [id])
 }
