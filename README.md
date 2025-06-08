@@ -14,7 +14,7 @@ git clone {repository URL}
 ## Installing NPM modules
 
 ```
-npm install --legacy-peer-depss
+npm install
 ```
 
 ## Running application
@@ -22,6 +22,8 @@ npm install --legacy-peer-depss
 Create `.env` file in project root directory using `.env.example` as example.
 Set port number to `PORT={PORT_NUMBER}`
 Set postgres variables.
+If you run app in container you should set POSTGRES_HOST=postgres.
+If you run app in host machine you should set POSTGRES_HOST=localhost
 
 Run docker desktop.
 Run building and start app in docker
@@ -33,6 +35,12 @@ docker-compose up
 After starting the app on port (which you provide in `.env` file or 4000 by default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
 For more information about OpenAPI/Swagger please visit https://swagger.io/.
+
+## Scan for vulnerability
+
+```
+npm run docker:scan
+```
 
 ## Testing
 
