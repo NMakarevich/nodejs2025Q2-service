@@ -1,50 +1,50 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
-import { v4 as uuidv4 } from 'uuid';
 
-import { artistDB } from '../../db/database';
-import { AlbumService } from '../album/album.service';
-import { TrackService } from '../track/track.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class ArtistService {
-  private artistDB = artistDB;
+  constructor(private readonly prisma: PrismaService) {}
 
-  constructor(
-    private readonly albumService: AlbumService,
-    private readonly trackService: TrackService,
-  ) {}
-
-  create(createArtistDto: CreateArtistDto) {
-    const id = uuidv4();
-    return this.artistDB.create({ id, ...createArtistDto });
+  async create(createArtistDto: CreateArtistDto) {
+    return this.prisma.artist.create({ data: createArtistDto });
   }
 
-  findAll() {
-    return this.artistDB.findAll();
+  async findAll() {
+    return this.prisma.artist.findMany({
+      include: {
+        albums: true,
+      },
+    });
   }
 
-  findOne(id: string) {
-    const artist = this.artistDB.findOne(id);
+  async findOne(id: string) {
+    const artist = await this.prisma.artist.findUnique({
+      where: { id },
+      include: { albums: true },
+    });
     if (!artist)
       throw new HttpException('Artist is not found', HttpStatus.NOT_FOUND);
     return artist;
   }
 
-  update(id: string, updateArtistDto: UpdateArtistDto) {
-    const artist = this.artistDB.findOne(id);
+  async update(id: string, updateArtistDto: UpdateArtistDto) {
+    const artist = await this.findOne(id);
     if (!artist)
       throw new HttpException('Artist is not found', HttpStatus.NOT_FOUND);
-    return this.artistDB.update(id, updateArtistDto);
+    return this.prisma.artist.update({
+      where: { id },
+      data: updateArtistDto,
+      include: { albums: true },
+    });
   }
 
-  remove(id: string) {
-    const artist = this.artistDB.findOne(id);
+  async remove(id: string) {
+    const artist = await this.findOne(id);
     if (!artist)
       throw new HttpException('Artist is not found', HttpStatus.NOT_FOUND);
-    this.trackService.removeArtistId(id);
-    this.albumService.removeArtistId(id);
-    return this.artistDB.delete(id);
+    return this.prisma.artist.delete({ where: { id } });
   }
 }

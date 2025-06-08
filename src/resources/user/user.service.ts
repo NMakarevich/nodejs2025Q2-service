@@ -1,56 +1,78 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
-import { v4 as uuidv4 } from 'uuid';
-
-import { userDB } from '../../db/database';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class UserService {
-  private users = userDB;
+  constructor(private readonly prisma: PrismaService) {}
 
-  create(createUserDto: CreateUserDto) {
-    const time = new Date().getTime();
-    const user = new User({
-      id: uuidv4(),
-      ...createUserDto,
-      version: 1,
-      createdAt: time,
-      updatedAt: time,
+  async create(createUserDto: CreateUserDto) {
+    const newUser = await this.prisma.user.create({
+      data: createUserDto,
+      omit: {
+        password: true,
+      },
     });
-    return this.users.create(user);
+    return transformDate(newUser);
   }
 
-  findAll() {
-    return this.users.findAll();
+  async findAll() {
+    const users = await this.prisma.user.findMany({
+      omit: {
+        password: true,
+      },
+    });
+    return users.map((user) => transformDate(user));
   }
 
-  findOne(id: string) {
-    const user = this.users.findOne(id);
+  async findOne(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      omit: {
+        password: true,
+      },
+    });
     if (!user)
       throw new HttpException('User is not found', HttpStatus.NOT_FOUND);
-    return user;
+    return transformDate(user);
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    const user = this.findOne(id);
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user)
       throw new HttpException('User is not found', HttpStatus.NOT_FOUND);
     if (user.password !== updateUserDto.oldPassword)
       throw new HttpException('Incorrect old password', HttpStatus.FORBIDDEN);
 
-    return this.users.update(id, {
-      password: updateUserDto.newPassword,
-      version: user.version + 1,
-      updatedAt: new Date().getTime(),
+    const updatedUser = await this.prisma.user.update({
+      where: { id },
+      data: { password: updateUserDto.newPassword, version: user.version + 1 },
+      omit: {
+        password: true,
+      },
     });
+    return transformDate(updatedUser);
   }
 
-  remove(id: string) {
-    const user = this.findOne(id);
+  async remove(id: string) {
+    const user = await this.findOne(id);
     if (!user)
       throw new HttpException('User is not found', HttpStatus.NOT_FOUND);
-    return this.users.delete(id);
+    return this.prisma.user.delete({ where: { id } });
   }
+}
+
+function transformDate(user: {
+  id: string;
+  login: string;
+  version: number;
+  createdAt: Date;
+  updatedAt: Date;
+}) {
+  return {
+    ...user,
+    createdAt: user.createdAt.getTime(),
+    updatedAt: user.updatedAt.getTime(),
+  };
 }

@@ -1,54 +1,57 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
-import { v4 as uuidv4 } from 'uuid';
-import { TrackService } from '../track/track.service';
 
-import { albumDB } from '../../db/database';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class AlbumService {
-  private albumDB = albumDB;
-  constructor(private readonly trackService: TrackService) {}
-  create(createAlbumDto: CreateAlbumDto) {
-    const id = uuidv4();
-    return this.albumDB.create({ id, ...createAlbumDto });
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createAlbumDto: CreateAlbumDto) {
+    return this.prisma.album.create({
+      data: createAlbumDto,
+      include: {
+        artist: true,
+      },
+    });
   }
 
-  findAll() {
-    return this.albumDB.findAll();
+  async findAll() {
+    return this.prisma.album.findMany({
+      include: {
+        artist: true,
+      },
+    });
   }
 
-  findOne(id: string) {
-    const album = this.albumDB.findOne(id);
+  async findOne(id: string) {
+    const album = await this.prisma.album.findUnique({
+      where: { id },
+      include: { artist: true },
+    });
     if (!album)
       throw new HttpException('Album is not found', HttpStatus.NOT_FOUND);
     return album;
   }
 
-  update(id: string, updateAlbumDto: UpdateAlbumDto) {
-    const album = this.albumDB.findOne(id);
+  async update(id: string, updateAlbumDto: UpdateAlbumDto) {
+    const album = await this.findOne(id);
     if (!album)
       throw new HttpException('Album is not found', HttpStatus.NOT_FOUND);
-    return this.albumDB.update(id, updateAlbumDto);
-  }
-
-  remove(id: string) {
-    const album = this.albumDB.findOne(id);
-    if (!album)
-      throw new HttpException('Album is not found', HttpStatus.NOT_FOUND);
-    this.trackService.removeAlbumId(id);
-    return this.albumDB.delete(id);
-  }
-
-  removeArtistId(id: string) {
-    const tracks = this.albumDB
-      .findAll()
-      .filter((track) => track.artistId === id);
-    tracks.forEach((track) => {
-      const updateAlbumDto = new UpdateAlbumDto();
-      updateAlbumDto.artistId = null;
-      this.update(track.id, updateAlbumDto);
+    return this.prisma.album.update({
+      where: { id },
+      data: updateAlbumDto,
+      include: {
+        artist: true,
+      },
     });
+  }
+
+  async remove(id: string) {
+    const album = await this.findOne(id);
+    if (!album)
+      throw new HttpException('Album is not found', HttpStatus.NOT_FOUND);
+    return this.prisma.album.delete({ where: { id } });
   }
 }
