@@ -6,7 +6,12 @@ export class FavouritesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll() {
-    return this.prisma.favourites.findMany();
+    let favourites = await this.prisma.favourites.findFirst();
+    if (!favourites)
+      favourites = await this.prisma.favourites.create({
+        data: { trackIds: [], artistIds: [], albumIds: [] },
+      });
+    return favourites;
     // const favs = this.favsDB.findAll();
     // const response: FavouriteInterface = {
     //   artists: favs.artists
@@ -41,69 +46,78 @@ export class FavouritesService {
   }
 
   async addTrack(id: string) {
-    // try {
-    //   if (this.trackService.findOne(id)) {
-    //     this.favsDB.addTrack(id);
-    //   }
-    // } catch {
-    //   throw new HttpException(
-    //     'Track is not found',
-    //     HttpStatus.UNPROCESSABLE_ENTITY,
-    //   );
-    // }
-    await this.prisma.favourites.create({ data: { trackId: id } });
+    const favourites = await this.prisma.favourites.findFirst();
+    if (!favourites.trackIds.includes(id)) favourites.trackIds.push(id);
+    console.log(favourites);
+    const favouritesId = favourites.id;
+    delete favourites.id;
+    await this.prisma.favourites.update({
+      where: { id: favouritesId },
+      data: favourites,
+    });
     return { message: 'Track is added to favourites' };
   }
 
-  removeTrack(id: string) {
-    // if (!this.favsDB.findAll().tracks.includes(id)) {
-    //   throw new HttpException('Track is not found', HttpStatus.NOT_FOUND);
-    // }
-    // this.favsDB.deleteTrack(id);
-    // return { message: 'Track is removed from favourites' };
+  async removeTrack(id: string) {
+    const favourites = await this.prisma.favourites.findFirst();
+    const trackIndex = favourites.trackIds.indexOf(id);
+    if (trackIndex !== -1) favourites.trackIds.splice(trackIndex, 1);
+    const favouritesId = favourites.id;
+    delete favourites.id;
+    await this.prisma.favourites.update({
+      where: { id: favouritesId },
+      data: favourites,
+    });
+    return { message: 'Track is removed from favourites' };
   }
 
-  addArtist(id: string) {
-    // try {
-    //   if (this.artistService.findOne(id)) {
-    //     this.favsDB.addArtist(id);
-    //   }
-    // } catch {
-    //   throw new HttpException(
-    //     'Artist is not found',
-    //     HttpStatus.UNPROCESSABLE_ENTITY,
-    //   );
-    // }
+  async addArtist(id: string) {
+    const favourites = await this.prisma.favourites.findFirst();
+    if (!favourites.artistIds.includes(id)) favourites.artistIds.push(id);
+    const favouritesId = favourites.id;
+    delete favourites.id;
+    await this.prisma.favourites.update({
+      where: { id: favouritesId },
+      data: favourites,
+    });
     return { message: 'Artist is added to favourites' };
   }
 
-  removeArtist(id: string) {
-    // if (!this.favsDB.findAll().artists.includes(id)) {
-    //   throw new HttpException('Artist is not found', HttpStatus.NOT_FOUND);
-    // }
-    // this.favsDB.deleteArtist(id);
-    // return { message: 'Artist is added to favourites' };
+  async removeArtist(id: string) {
+    const favourites = await this.prisma.favourites.findFirst();
+    const artistIndex = favourites.artistIds.indexOf(id);
+    if (artistIndex !== -1) favourites.artistIds.splice(artistIndex, 1);
+    const favouritesId = favourites.id;
+    delete favourites.id;
+    await this.prisma.favourites.update({
+      where: { id: favouritesId },
+      data: favourites,
+    });
+    return { message: 'Artist is removed from favourites' };
   }
 
-  addAlbum(id: string) {
-    // try {
-    //   if (this.albumService.findOne(id)) {
-    //     this.favsDB.addAlbum(id);
-    //   }
-    // } catch {
-    //   throw new HttpException(
-    //     'Album is not found',
-    //     HttpStatus.UNPROCESSABLE_ENTITY,
-    //   );
-    // }
+  async addAlbum(id: string) {
+    const favourites = await this.prisma.favourites.findFirst();
+    if (!favourites.albumIds.includes(id)) favourites.albumIds.push(id);
+    const favouritesId = favourites.id;
+    delete favourites.id;
+    await this.prisma.favourites.update({
+      where: { id: favouritesId },
+      data: favourites,
+    });
     return { message: 'Album is added to favourites' };
   }
 
-  removeAlbum(id: string) {
-    // if (!this.favsDB.findAll().albums.includes(id)) {
-    //   throw new HttpException('Album is not found', HttpStatus.NOT_FOUND);
-    // }
-    // this.favsDB.deleteAlbum(id);
-    // return { message: 'Album is removed from favourites' };
+  async removeAlbum(id: string) {
+    const favourites = await this.prisma.favourites.findFirst();
+    const albumIndex = favourites.albumIds.indexOf(id);
+    if (albumIndex !== -1) favourites.albumIds.splice(albumIndex, 1);
+    const favouritesId = favourites.id;
+    delete favourites.id;
+    await this.prisma.favourites.update({
+      where: { id: favouritesId },
+      data: favourites,
+    });
+    return { message: 'Album is removed from favourites' };
   }
 }
