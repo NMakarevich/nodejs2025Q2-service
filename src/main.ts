@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import 'dotenv/config';
 import * as process from 'node:process';
 import { SwaggerModule } from '@nestjs/swagger';
@@ -29,6 +29,7 @@ async function bootstrap() {
   process.on('unhandledRejection', async (reason) => {
     logger.error(reason);
   });
+  app.useGlobalFilters(new CustomExceptionFilter());
 
   SwaggerModule.setup('doc', app, parse(api));
 
