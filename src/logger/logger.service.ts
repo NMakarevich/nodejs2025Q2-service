@@ -1,6 +1,7 @@
 import { ConsoleLogger } from '@nestjs/common';
 import * as process from 'node:process';
 import 'dotenv/config';
+import { saveToLog } from '../utils/logger';
 
 const LOG_LEVEL = Number(process.env.LOG_LEVELS) + 1;
 
@@ -9,27 +10,32 @@ export class CustomLogger extends ConsoleLogger {
     super();
   }
 
-  log(message: any, context?: string) {
+  async log(message: any, context?: string) {
     super.log(message, context);
+    await saveToLog(message, 'log');
   }
 
-  error(message: any, context?: string) {
+  async error(message: any, context?: string) {
     if (LOG_LEVEL < 2) return;
     super.error(message, context);
+    await saveToLog(message, 'error');
   }
 
-  warn(message: any, context?: string) {
+  async warn(message: any, context?: string) {
     if (LOG_LEVEL < 3) return;
     super.warn(message, context);
+    await saveToLog(message, 'error');
   }
 
-  debug(message: any, context?: string) {
+  async debug(message: any, context?: string) {
     if (LOG_LEVEL < 4) return;
     super.debug(message, context);
+    await saveToLog(message, 'error');
   }
 
-  verbose(message: any, context?: string) {
+  async verbose(message: any, context?: string) {
     if (LOG_LEVEL < 5) return;
     super.verbose(message, context);
+    await saveToLog(message, 'error');
   }
 }
