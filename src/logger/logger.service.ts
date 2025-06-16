@@ -2,7 +2,7 @@ import { ConsoleLogger } from '@nestjs/common';
 import * as process from 'node:process';
 import 'dotenv/config';
 
-const LOG_LEVEL = Number(process.env.LOG_LEVELS);
+const LOG_LEVEL = Number(process.env.LOG_LEVELS) + 1;
 
 export class CustomLogger extends ConsoleLogger {
   constructor() {
