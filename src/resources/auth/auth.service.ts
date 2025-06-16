@@ -35,7 +35,8 @@ export class AuthService {
     return this.userService.create(createUserDto);
   }
 
-  async login(user: any) {
+  async login(body: any) {
+    const user = await this.userService.findOneByLogin(body.login);
     const payload = { login: user.login, userId: user.id };
     const accessToken = await this.jwt.signAsync(payload, {
       secret: process.env.JWT_SECRET_KEY || 'secret',
